@@ -12,6 +12,7 @@ func main() {
 	x := ServiceLogic.MockServiceHandler{InstanceID: "sdf", CacheHandler: mockRedis}
 	handleService(x)
 	fmt.Println("Test")
+
 }
 
 func handleService(s ServiceLogic.ServiceHandler) {
