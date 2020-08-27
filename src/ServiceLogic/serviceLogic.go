@@ -2,7 +2,9 @@ package ServiceLogic
 
 import (
 	"fmt"
+	"io"
 	"net/http"
+    "bytes"
 
 	"../CacheLogic"
 	"github.com/gorilla/mux"
@@ -21,8 +23,11 @@ func (s MockServiceHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 
 	if !s.CacheHandler.KeyExists(key) {
 		fmt.Println("Key " + key + " not found")
+		http.Error(w, "Key not found", http.StatusNotFound)
 	} else {
 		fmt.Println("Cache hit!")
+		value := s.CacheHandler.Get(key)
+		io.WriteString(w, value)
 	}
 
 	fmt.Println(s.CacheHandler.Get("gds"))
@@ -30,5 +35,12 @@ func (s MockServiceHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 
 func (s MockServiceHandler) HandlePost(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Println(s.CacheHandler.Get("ParamName"))
+	vars := mux.Vars(r)
+	key := (vars[s.ParamName])
+
+	buf := new(bytes.Buffer)
+    buf.ReadFrom(r.Body)
+    value := buf.String()
+	fmt.Println( "Update called with value " + value + " key : "+key)
+	s.CacheHandler.Insert(key,value,s.DefaultTTLInMinutes)
 }
