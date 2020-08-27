@@ -10,6 +10,6 @@ func (m MockRedis) Get(key string) string {
 func (m MockRedis) Insert(key string, val string, ttl int) {
 
 }
-func (m MockRedis) Keyexist(key string) bool {
+func (m MockRedis) KeyExists(key string) bool {
 	return false
 }

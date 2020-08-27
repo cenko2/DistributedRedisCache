@@ -18,7 +18,7 @@ func (m RedisCache) Get(key string) string {
 func (m RedisCache) Insert(key string, val string, ttl int) {
 
 }
-func (m RedisCache) Keyexist(key string) bool {
+func (m RedisCache) KeyExists(key string) bool {
 	return false
 }
 

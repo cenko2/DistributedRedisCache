@@ -2,21 +2,33 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+	"time"
 
 	"./CacheLogic"
 	"./ServiceLogic"
+	"github.com/gorilla/mux"
 )
 
 func main() {
 	mockRedis := CacheLogic.MockRedis{InstanceID: "xx"}
-	x := ServiceLogic.MockServiceHandler{InstanceID: "sdf", CacheHandler: mockRedis}
-	handleService(x)
+	x := ServiceLogic.MockServiceHandler{ParamName: "key", CacheHandler: mockRedis, DefaultTTLInMinutes: 30}
+
 	fmt.Println("Test")
-	CacheLogic.ExampleNewClient()
+	r := mux.NewRouter()
+	r.HandleFunc("/cache/{key}", x.HandleGet).Methods("GET")
+	r.HandleFunc("/cache/{key}", x.HandleGet).Methods("POST")
 
-	CacheLogic.ExampleClient()
-}
+	http.Handle("/", r)
 
-func handleService(s ServiceLogic.ServiceHandler) {
-	s.ServiceMethod()
+	srv := &http.Server{
+		Handler: r,
+		Addr:    "127.0.0.1:8000",
+		// Good practice: enforce timeouts for servers you create!
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
+	}
+
+	log.Fatal(srv.ListenAndServe())
 }

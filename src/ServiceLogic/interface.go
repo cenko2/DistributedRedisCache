@@ -1,5 +1,8 @@
 package ServiceLogic
 
+import "net/http"
+
 type ServiceHandler interface {
-	ServiceMethod()
+	HandleGet(http.ResponseWriter, *http.Request)
+	HandlePost(http.ResponseWriter, *http.Request)
 }
