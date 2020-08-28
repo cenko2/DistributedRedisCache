@@ -8,18 +8,34 @@ import (
 )
 
 type RedisCache struct {
+	Rdb *redis.Client
 }
 
 var ctx = context.Background()
 
 func (m RedisCache) Get(key string) string {
-	return key
+	val, err := m.Rdb.Get(ctx, key).Result()
+	if err != nil {
+		panic(err)
+	}
+	return val
 }
 func (m RedisCache) Insert(key string, val string, ttl int) {
-
+	err := m.Rdb.Set(ctx, key, val, 0).Err()
+	if err != nil {
+		panic(err)
+	}
 }
 func (m RedisCache) KeyExists(key string) bool {
-	return false
+	_, err := m.Rdb.Get(ctx, key).Result()
+	if err == redis.Nil {
+		fmt.Println(key, "does not exist")
+		return false
+	} else if err != nil {
+		panic(err)
+	} else {
+		return true
+	}
 }
 
 func ExampleNewClient() {

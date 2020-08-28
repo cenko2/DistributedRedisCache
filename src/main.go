@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 	"os"
+	"time"
 
 	"./CacheLogic"
 	"./ServiceLogic"
+	"github.com/go-redis/redis"
 	"github.com/gorilla/mux"
 )
 
@@ -22,28 +23,35 @@ func main() {
 	if addr == "" {
 		addr = defaultAddr
 	}
+	//  docker pull redis
+	//  docker run -d -p 6379:6379 redis
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
 
-	mockRedis := CacheLogic.MockRedis{InstanceID: "xx"}
-	x := ServiceLogic.MockServiceHandler{ParamName: "key", CacheHandler: mockRedis, DefaultTTLInMinutes: 30}
+	redisClient := CacheLogic.RedisCache{Rdb: rdb}
+	//mockRedis := CacheLogic.MockRedis{InstanceID: "xx"}
+	x := ServiceLogic.ServiceHandler{ParamName: "key", CacheHandler: redisClient, DefaultTTLInMinutes: 30}
 
-	
 	r := mux.NewRouter()
 	r.HandleFunc("/cache/{key}", x.HandleGet).Methods("GET")
 	r.HandleFunc("/cache/{key}", x.HandlePost).Methods("POST")
 	r.HandleFunc("/status", handleHearBeat).Methods("GET")
 	http.Handle("/", r)
-    fmt.Println("Address :" + addr)
+	fmt.Println("Address :" + addr)
 	srv := &http.Server{
-		Handler: r,
-		Addr:    addr,
-		// Good practice: enforce timeouts for servers you create!
+		Handler:      r,
+		Addr:         addr,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
+
 	fmt.Println("Instance initialized routing complete")
 	log.Fatal(srv.ListenAndServe())
 }
 
-func  handleHearBeat(w http.ResponseWriter, r *http.Request) {
+func handleHearBeat(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Heartbeat recevied")
 }

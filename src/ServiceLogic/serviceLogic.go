@@ -1,25 +1,31 @@
 package ServiceLogic
 
 import (
+	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
-    "bytes"
+	"time"
 
 	"../CacheLogic"
 	"github.com/gorilla/mux"
 )
 
-type MockServiceHandler struct {
+type ServiceHandler struct {
 	ParamName           string
 	DefaultTTLInMinutes int
-	CacheHandler        CacheLogic.CacheHandler
+	CacheHandler        CacheLogic.CacheHandlerInterface
 }
 
-func (s MockServiceHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
+func (s ServiceHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 
+	vars := mux.Vars(r)
 	key := (vars[s.ParamName])
+	now := time.Now()
+	defer func() {
+		log.Printf("Get\tkey:%q\ttime:%v", key, time.Since(now))
+	}()
 
 	if !s.CacheHandler.KeyExists(key) {
 		fmt.Println("Key " + key + " not found")
@@ -29,18 +35,20 @@ func (s MockServiceHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 		value := s.CacheHandler.Get(key)
 		io.WriteString(w, value)
 	}
-
-	fmt.Println(s.CacheHandler.Get("gds"))
 }
 
-func (s MockServiceHandler) HandlePost(w http.ResponseWriter, r *http.Request) {
+func (s ServiceHandler) HandlePost(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	key := (vars[s.ParamName])
+	now := time.Now()
+	defer func() {
+		log.Printf("Post\tkey:%q\ttime:%v", key, time.Since(now))
+	}()
 
 	buf := new(bytes.Buffer)
-    buf.ReadFrom(r.Body)
-    value := buf.String()
-	fmt.Println( "Update called with value " + value + " key : "+key)
-	s.CacheHandler.Insert(key,value,s.DefaultTTLInMinutes)
+	buf.ReadFrom(r.Body)
+	value := buf.String()
+	fmt.Println("Update called with value " + value + " key : " + key)
+	s.CacheHandler.Insert(key, value, s.DefaultTTLInMinutes)
 }
