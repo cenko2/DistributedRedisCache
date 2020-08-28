@@ -42,10 +42,10 @@ func main() {
 	r.HandleFunc("/cache/{key}", x.HandlePost).Methods("POST")
 	r.HandleFunc("/status", handleHearBeat).Methods("GET")
 	http.Handle("/", r)
-	fmt.Println("Address :" + addr)
+
 	srv := &http.Server{
-		Handler:      r,
-		Addr:         addr,
+		Handler: r,
+		//		Addr:         addr,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
