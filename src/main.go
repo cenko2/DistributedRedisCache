@@ -19,6 +19,8 @@ const (
 
 func main() {
 
+	fmt.Println(os.Getenv(os.Getenv("ENV")))
+
 	addr := os.Getenv("ADDR")
 	if addr == "" {
 		addr = defaultAddr
@@ -26,13 +28,13 @@ func main() {
 	//  docker pull redis
 	//  docker run -d -p 6379:6379 redis
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+		Addr:     "redis:6379",
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
 
 	redisClient := CacheLogic.RedisCache{Rdb: rdb}
-	//mockRedis := CacheLogic.MockRedis{InstanceID: "xx"}
+
 	x := ServiceLogic.ServiceHandler{ParamName: "key", CacheHandler: redisClient, DefaultTTLInMinutes: 30}
 
 	r := mux.NewRouter()

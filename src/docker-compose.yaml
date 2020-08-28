@@ -13,6 +13,10 @@ services:
       - VIRTUAL_HOST=localhost
       - VIRTUAL_PORT=80
       - NODES=distributedcache
+      - ENV=DOCKERCOMPOSE
     image: distributedcache
     expose:
       - 80
+      
+  redis:
+        image: redis:alpine

@@ -19,9 +19,11 @@ type ServiceHandler struct {
 }
 
 func (s ServiceHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
-
+	//Read key value from address params
 	vars := mux.Vars(r)
 	key := (vars[s.ParamName])
+
+	//Timing
 	now := time.Now()
 	defer func() {
 		log.Printf("Get\tkey:%q\ttime:%v", key, time.Since(now))
@@ -39,16 +41,24 @@ func (s ServiceHandler) HandleGet(w http.ResponseWriter, r *http.Request) {
 
 func (s ServiceHandler) HandlePost(w http.ResponseWriter, r *http.Request) {
 
+	// Read key
 	vars := mux.Vars(r)
 	key := (vars[s.ParamName])
+
+	//Instrumentation
 	now := time.Now()
 	defer func() {
 		log.Printf("Post\tkey:%q\ttime:%v", key, time.Since(now))
 	}()
 
+	// Read the value
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
 	value := buf.String()
+	if len(value) > 100000 {
+		http.Error(w, "Input too long", http.StatusBadRequest)
+		return
+	}
 	fmt.Println("Update called with value " + value + " key : " + key)
 	s.CacheHandler.Insert(key, value, s.DefaultTTLInMinutes)
 }
