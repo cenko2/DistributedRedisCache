@@ -1,3 +1,4 @@
+//Package ServiceLogic handles the rest requests and forwards them to the cache handler
 package ServiceLogic
 
 import (

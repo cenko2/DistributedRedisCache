@@ -26,8 +26,8 @@ func (m RedisCache) Get(key string) string {
 }
 
 //Insert sets the key's value in the redis cache with val. ttl is "time to live" in minutes
-func (m RedisCache) Insert(key string, val string, ttl int) {
-	err := m.Rdb.Set(ctx, key, val, time.Duration(ttl)*time.Minute).Err()
+func (m RedisCache) Insert(key string, val *string, ttl int) {
+	err := m.Rdb.Set(ctx, key, *val, time.Duration(ttl)*time.Minute).Err()
 	if err != nil {
 		panic(err)
 	}
