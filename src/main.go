@@ -19,18 +19,13 @@ const (
 
 func main() {
 
-	addr := os.Getenv("ADDR")
-	if addr == "" {
-		addr = defaultAddr
-	}
-
 	//  to run locally
 	//  docker pull redis
 	//  docker run -d -p 6379:6379 redis
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     getRedisHost(),
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Password: "",
+		DB:       0,
 	})
 
 	redisClient := CacheLogic.RedisCache{Rdb: rdb}
@@ -44,8 +39,7 @@ func main() {
 	http.Handle("/", r)
 
 	srv := &http.Server{
-		Handler: r,
-		//		Addr:         addr,
+		Handler:      r,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}

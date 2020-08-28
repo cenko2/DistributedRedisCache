@@ -62,5 +62,5 @@ func (s ServiceHandler) HandlePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("Update called with value " + value + " key : " + key)
-	s.CacheHandler.Insert(key, value, s.DefaultTTLInMinutes)
+	s.CacheHandler.Insert(key, &value, s.DefaultTTLInMinutes)
 }

@@ -1,8 +1,6 @@
  
 FROM golang:latest as build
- 
- 
- 
+  
 # Move to working directory /build
 WORKDIR /src
 ADD . /src
