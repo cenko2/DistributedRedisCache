@@ -19,16 +19,16 @@ const (
 
 func main() {
 
-	fmt.Println(os.Getenv(os.Getenv("ENV")))
-
 	addr := os.Getenv("ADDR")
 	if addr == "" {
 		addr = defaultAddr
 	}
+
+	//  to run locally
 	//  docker pull redis
 	//  docker run -d -p 6379:6379 redis
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "redis:6379",
+		Addr:     getRedisHost(),
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
@@ -56,4 +56,13 @@ func main() {
 
 func handleHearBeat(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Heartbeat recevied")
+}
+
+func getRedisHost() string {
+	envRedis := os.Getenv("REDISHOST")
+	if envRedis != "" {
+		return envRedis
+	} else {
+		return "localhost:6379"
+	}
 }
