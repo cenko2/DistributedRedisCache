@@ -13,10 +13,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const (
-	defaultAddr = ":http"
-)
-
 func main() {
 
 	//  to run locally
@@ -30,7 +26,7 @@ func main() {
 
 	redisClient := CacheLogic.RedisCache{Rdb: rdb}
 
-	x := ServiceLogic.ServiceHandler{ParamName: "key", CacheHandler: redisClient, DefaultTTLInMinutes: 30}
+	x := ServiceLogic.New(redisClient, "key", 30)
 
 	r := mux.NewRouter()
 	r.HandleFunc("/cache/{key}", x.HandleGet).Methods("GET")
@@ -56,7 +52,7 @@ func getRedisHost() string {
 	envRedis := os.Getenv("REDISHOST")
 	if envRedis != "" {
 		return envRedis
-	} else {
-		return "localhost:6379"
 	}
+	return "localhost:6379"
+
 }
